@@ -65,3 +65,16 @@ export const updateProductById = (req: Request, res: Response) => {
     return res.status(500).json({ error: 'Internal Server Error' })
   }
 }
+
+export const deleteProductById = (req: Request, res: Response) => {
+  try {
+    const productId = req.params.id
+    const productIndex = market.findIndex((prod) => prod.id == productId)
+
+    return productIndex === -1
+      ? res.status(404).json({ message: 'Produto não encontrado' })
+      : (market.splice(productIndex, 1), res.status(204).send())
+  } catch (error) {
+    return res.status(500).json({ error: 'Internal Server Error' })
+  }
+}
