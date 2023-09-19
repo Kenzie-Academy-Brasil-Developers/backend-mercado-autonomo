@@ -1,20 +1,67 @@
-import { Request, Response } from 'express';
-import { market } from './database';
-import { Products } from './interfaces';
+import { Request, Response } from 'express'
+import { market } from './database'
+import { Products } from './interfaces'
+
+let nextId = 1
 
 export const createProduct = (req: Request, res: Response) => {
-  const bodyProduct = req.body as Products;
-  
-  if (bodyProduct) {
-    const id = Math.random();
+  try {
+    const bodyProduct = req.body as Products
+
+    if (!bodyProduct) {
+      return res.status(400).json({ error: 'Invalid request body' })
+    }
+
     const newProduct: Products = {
-      id,
-      ...bodyProduct,
-    };
-    market.push(newProduct);
-    console.log(market);
-    res.send({ product: market }); // Corrected the typo in the response object
-  } else {
-    res.sendStatus(400);
+      id: nextId++,
+      ...bodyProduct
+    }
+
+    market.push(newProduct)
+
+    return res.status(201).json({ product: newProduct })
+  } catch (error) {
+    return res.status(500).json({ error: 'Internal Server Error' })
   }
-};
+}
+
+export const getProducts = (req: Request, res: Response) => {
+  try {
+    const listProducts = market
+    return listProducts
+      ? res.status(200).json({ products: listProducts })
+      : res.status(404).json({ error: 'No products found' })
+  } catch (error) {
+    return res.status(500).json({ error: 'Internal Server Error' })
+  }
+}
+
+export const getProductById = (req: Request, res: Response) => {
+  try {
+    const productId = req.params.id
+    const product = market.find((prod) => prod.id == productId)
+
+    return product
+      ? res.status(200).json({ product })
+      : res.status(404).json({ message: 'Produto não encontrado' })
+  } catch (error) {
+    return res.status(500).json({ error: 'Internal Server Error' })
+  }
+}
+export const updateProductById = (req: Request, res: Response) => {
+  try {
+    const productId = req.params.id
+    const productIndex = market.findIndex((prod) => prod.id == productId)
+
+    if (productIndex === -1) {
+      return res.status(404).json({ message: 'Produto não encontrado' })
+    }
+
+    const updatedProduct = { ...market[productIndex], ...req.body }
+    market[productIndex] = updatedProduct
+
+    return res.status(200).json({ product: updatedProduct })
+  } catch (error) {
+    return res.status(500).json({ error: 'Internal Server Error' })
+  }
+}
