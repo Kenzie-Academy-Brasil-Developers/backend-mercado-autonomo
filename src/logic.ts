@@ -28,8 +28,9 @@ export const createProduct = (req: Request, res: Response) => {
 export const getProducts = (req: Request, res: Response) => {
   try {
     const listProducts = market
+    const totalValue = listProducts.reduce((total, product) => total + product.price, 0);
     return listProducts
-      ? res.status(200).json({ products: listProducts })
+      ? res.status(200).json({total: totalValue, products: listProducts })
       : res.status(404).json({ error: 'No products found' })
   } catch (error) {
     return res.status(500).json({ error: 'Internal Server Error' })
