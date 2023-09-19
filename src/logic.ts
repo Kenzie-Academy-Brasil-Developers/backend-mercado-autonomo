@@ -12,9 +12,14 @@ export const createProduct = (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Invalid request body' })
     }
 
+    const currentDate = new Date()
+    const oneYearLater = new Date(currentDate)
+    oneYearLater.setFullYear(currentDate.getFullYear() + 1)
+
     const newProduct: Products = {
       id: nextId++,
-      ...bodyProduct
+      ...bodyProduct,
+      expirationData: oneYearLater
     }
 
     market.push(newProduct)
@@ -28,9 +33,10 @@ export const createProduct = (req: Request, res: Response) => {
 export const getProducts = (req: Request, res: Response) => {
   try {
     const listProducts = market
-    const totalValue = listProducts.reduce((total, product) => total + product.price, 0);
-    return listProducts
-      ? res.status(200).json({total: totalValue, products: listProducts })
+    const totalValue = listProducts.reduce((total, product) => total + product.price, 0)
+
+    return listProducts.length
+      ? res.status(200).json({ total: totalValue, products: listProducts })
       : res.status(404).json({ error: 'No products found' })
   } catch (error) {
     return res.status(500).json({ error: 'Internal Server Error' })
@@ -44,18 +50,19 @@ export const getProductById = (req: Request, res: Response) => {
 
     return product
       ? res.status(200).json({ product })
-      : res.status(404).json({ message: 'Produto não encontrado' })
+      : res.status(404).json({ error: 'Product not found' })
   } catch (error) {
     return res.status(500).json({ error: 'Internal Server Error' })
   }
 }
+
 export const updateProductById = (req: Request, res: Response) => {
   try {
     const productId = req.params.id
     const productIndex = market.findIndex((prod) => prod.id == productId)
 
     if (productIndex === -1) {
-      return res.status(404).json({ message: 'Produto não encontrado' })
+      return res.status(404).json({ error: 'Product not found' })
     }
 
     const updatedProduct = { ...market[productIndex], ...req.body }
@@ -73,7 +80,7 @@ export const deleteProductById = (req: Request, res: Response) => {
     const productIndex = market.findIndex((prod) => prod.id == productId)
 
     return productIndex === -1
-      ? res.status(404).json({ message: 'Produto não encontrado' })
+      ? res.status(404).json({ error: 'Product not found' })
       : (market.splice(productIndex, 1), res.status(204).send())
   } catch (error) {
     return res.status(500).json({ error: 'Internal Server Error' })
