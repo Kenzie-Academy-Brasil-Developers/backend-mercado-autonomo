@@ -5,5 +5,5 @@ export interface Products {
   weight?: number
   section?: string
   colories?: number | null | undefined
-  expirationData?: Date
+  expirationDate?: Date
 }

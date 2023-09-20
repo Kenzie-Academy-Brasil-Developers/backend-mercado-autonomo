@@ -19,14 +19,13 @@ export const createProduct = (req: Request, res: Response) => {
     const newProduct: Products = {
       id: nextId++,
       ...bodyProduct,
-      expirationData: oneYearLater
+      expirationDate: oneYearLater
     }
 
     market.push(newProduct)
-
-    return res.status(201).json({ product: newProduct })
+    return res.status(201).json(newProduct)
   } catch (error) {
-    return res.status(500).json({ error: 'Internal Server Error' })
+    res.status(500).json({ error: 'Internal server error' })
   }
 }
 
@@ -37,9 +36,9 @@ export const getProducts = (req: Request, res: Response) => {
 
     return listProducts.length
       ? res.status(200).json({ total: totalValue, products: listProducts })
-      : res.status(404).json({ error: 'No products found' })
+      : res.status(404).json({ message: 'No products found.' })
   } catch (error) {
-    return res.status(500).json({ error: 'Internal Server Error' })
+    return res.status(500).json({ message: 'Internal Server Error' })
   }
 }
 
@@ -48,11 +47,13 @@ export const getProductById = (req: Request, res: Response) => {
     const productId = req.params.id
     const product = market.find((prod) => prod.id == productId)
 
-    return product
-      ? res.status(200).json({ product })
-      : res.status(404).json({ error: 'Product not found' })
+    if (product) {
+      return res.status(200).json(product)
+    } else {
+      return res.status(404).json({ message: 'Product not found.' })
+    }
   } catch (error) {
-    return res.status(500).json({ error: 'Internal Server Error' })
+    return res.status(500).json({ message: 'Internal Server Error.' })
   }
 }
 
@@ -62,17 +63,18 @@ export const updateProductById = (req: Request, res: Response) => {
     const productIndex = market.findIndex((prod) => prod.id == productId)
 
     if (productIndex === -1) {
-      return res.status(404).json({ error: 'Product not found' })
+      return res.status(404).json({ message: 'Product not found.' })
     }
 
-    const updatedProduct = { ...market[productIndex], ...req.body }
-    market[productIndex] = updatedProduct
+    const product = { ...market[productIndex], ...req.body }
+    market[productIndex] = product
 
-    return res.status(200).json({ product: updatedProduct })
+    return res.status(200).json({...product})
   } catch (error) {
-    return res.status(500).json({ error: 'Internal Server Error' })
+    return res.status(500).json({ message: 'Internal Server Error' })
   }
 }
+
 
 export const deleteProductById = (req: Request, res: Response) => {
   try {
@@ -80,9 +82,9 @@ export const deleteProductById = (req: Request, res: Response) => {
     const productIndex = market.findIndex((prod) => prod.id == productId)
 
     return productIndex === -1
-      ? res.status(404).json({ error: 'Product not found' })
+      ? res.status(404).json({ message: 'Product not found.' })
       : (market.splice(productIndex, 1), res.status(204).send())
   } catch (error) {
-    return res.status(500).json({ error: 'Internal Server Error' })
+    return res.status(500).json({ message: 'Internal Server Error' })
   }
 }
