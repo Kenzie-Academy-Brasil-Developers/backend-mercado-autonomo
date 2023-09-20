@@ -24,7 +24,7 @@ app.get('/products/:id', isIdExisting, getProductById)
 app.post('/products', isNameExisting, createProduct)
 
 // PATCH
-app.patch('/products/:id',isNameExisting , isIdExisting, updateProductById)
+app.patch('/products/:id', isNameExisting, isIdExisting, updateProductById)
 
 // DELETE
 app.delete('/products/:id', isIdExisting, deleteProductById)

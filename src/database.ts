@@ -1,3 +1,3 @@
-import { Produtcts } from "./interfaces";
+import { Products } from "./interfaces";
 
-export const market : Produtcts[] = []
+export const market : Products[] = []
